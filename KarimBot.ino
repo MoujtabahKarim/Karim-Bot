@@ -23,31 +23,27 @@ void setup() {
   Serial.begin(9600); 
 }
 
-// the loop function runs over and over again forever
-void loop() {
-
-
-
-
+void loop() {               // the loop function runs over and over again forever
 followBlackLine(); 
-
 }
 
 void followBlackLine() {
   float LSensor = analogRead(pot1);
-float RSensor = analogRead(pot2);
+  float RSensor = analogRead(pot2);
+  
   if(RSensor < 150 && LSensor < 150) {
-  goForwards(255); 
-} else  if(LSensor < 300) {
- turnRight(255, 10) ;
-}
+    goForwards(255); 
+  } else  if(LSensor < 300) {
+    turnRight(255, 10);
+  }
   else if(RSensor < 300) {
   turnLeft(255, 10); 
-}
+  }
 }
 
 int getDistance() {
   long duration, distance;
+  
   digitalWrite(trigPin,HIGH);
   delayMicroseconds(1000);
   digitalWrite(trigPin, LOW);
@@ -57,9 +53,8 @@ int getDistance() {
   Serial.println("CM");
   delay(10);
 
-  return distance ; 
+  return distance; 
 }
-
 
 void goForwards(int speed) {
    analogWrite(LMotor, speed);
@@ -67,38 +62,41 @@ void goForwards(int speed) {
    analogWrite(LBack, 0);
    analogWrite(RBack, 0);
 }
+
 void stopMoving() {
   digitalWrite(RBack, LOW);
   digitalWrite(RMotor, LOW);
   digitalWrite(LBack, LOW);
   digitalWrite(LMotor, LOW);
 }
+
 void goBackwards(int speed) {
-  analogWrite(LMotor, speed);
-  analogWrite(RBack, speed);
-  analogWrite(RMotor, speed);
+  analogWrite(LMotor, 0);
+  analogWrite(RMotor, 0);
   analogWrite(LBack, speed);
+  analogWrite(RBack, speed);
 }
 
-void turnRight(int speed, int time){
+void turnRight(int speed, int time) {
    analogWrite(LMotor, speed);
-    analogWrite(RMotor, speed);
-    digitalWrite(LBack, LOW);
-    analogWrite(RBack, speed);
-    delay(time) ; 
-      digitalWrite(LMotor, LOW);
-      digitalWrite(RMotor, LOW);
-      digitalWrite(RBack, LOW);
-}
-void turnLeft(int speed, int time){
-    analogWrite(LMotor, speed);
    analogWrite(RMotor, speed);
-    analogWrite(LBack, speed);
-     digitalWrite(RBack, LOW);
-     delay(time);
-      digitalWrite(RMotor, LOW);
-       digitalWrite(LMotor, LOW);
-        digitalWrite(LBack, LOW);
+   digitalWrite(LBack, LOW);
+   analogWrite(RBack, speed);
+   delay(time); 
+   digitalWrite(LMotor, LOW);
+   digitalWrite(RMotor, LOW);
+   digitalWrite(RBack, LOW);
+}
+
+void turnLeft(int speed, int time) {
+   analogWrite(LMotor, speed);
+   analogWrite(RMotor, speed);
+   analogWrite(LBack, speed);
+   digitalWrite(RBack, LOW);
+   delay(time);
+   digitalWrite(RMotor, LOW);
+   digitalWrite(LMotor, LOW);
+   digitalWrite(LBack, LOW);
 }
 
 
