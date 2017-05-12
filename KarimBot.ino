@@ -23,22 +23,45 @@ void setup() {
   Serial.begin(9600); 
 }
 
-void loop() {               // the loop function runs over and over again forever
+void loop() {            
 followBlackLine(); 
 }
 
-void followBlackLine() {
+void followBlackLine(){
   float LSensor = analogRead(pot1);
   float RSensor = analogRead(pot2);
   
-  if(RSensor < 150 && LSensor < 150) {
-    goForwards(255); 
-  } else  if(LSensor < 300) {
+  //Method used to update position of bot on the board
+  updatePosition() ; 
+  
+  // ----- Series of if/else statments allows for the bot to follow the black line --
+  //Both sensors on white 
+  if(!isBlack(RSensor) && !isBlack(LSensor)) {
+    goForwards(255);   
+  } 
+  //Right senses black and Left senses White (ALSO REACHED AN INTERSECTION)
+  else  if(isBlack(RSensor) && !isBlack(LSensor)) {
     turnRight(255, 10);
   }
-  else if(RSensor < 300) {
+  //Left senses black and Right senses white (ALSO REACHED AN INTERSECTION 
+  else if(isBlack(LSensor) && !isBlack(RSensor)) { 
   turnLeft(255, 10); 
   }
+}
+
+boolean isBlack(int var) {
+  int maxWhiteColor = 100 ; 
+  int minBlackColor = 250 ; 
+  
+  //If it is less than the maxWhiteColor then it is sensing the color white 
+  //If it is greater than the minBlackColor then it is sensing the color black (most likely) ..
+  //Remember to improve the method in which the program retrieves colors!!!
+  
+  if(var <= maxWhiteColor) {
+    return false; 
+  }
+  else return true ; 
+  
 }
 
 int getDistance() {
