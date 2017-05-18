@@ -10,8 +10,20 @@ int pot2 = A1;
 int pot1 = A0;
 
 
+//INITIAL SPEED
+int lSpeed = 200; 
+int rSpeed = 200 ;
+
+char Direction[] = {'N', 'E', 'S', 'W'};
 
 
+//Current Ticks
+int XTicks ; 
+int YTicks ;
+
+int currentDirection = 1;
+
+char facing = Direction[currentDirection];
 
 void setup() {
   pinMode(trigPin, OUTPUT);
@@ -23,24 +35,63 @@ void setup() {
   Serial.begin(9600); 
 }
 
-void loop() {               // the loop function runs over and over again forever
+void loop() {   // the loop function runs over and over again forever
+//direction = getDirection(direction);   
+
+  if(getDistance() <= 3) {
+    turnLeft(255, 200) ; 
+  }
+
 followBlackLine(); 
 }
+
+//Boolean OnWhite(int value) {
+  //On White
+//  if(value < 150) {
+    //return true ; 
+  //}
+  //else return false ; 
+//}
 
 void followBlackLine() {
   float LSensor = analogRead(pot1);
   float RSensor = analogRead(pot2);
+
+  analogWrite(LMotor, lSpeed);
+   analogWrite(RMotor, rSpeed);
+   analogWrite(LBack, 0);
+   analogWrite(RBack, 0);
+   
+  //goForwards(); 
+   if(LSensor < 300 && RSensor > 300) {
+    rSpeed = 0 ; 
+    lSpeed = lSpeed + 50 ; 
+  }
+  else if(RSensor < 300 && LSensor > 300) {
+    lSpeed = 0;
+    rSpeed = rSpeed + 50 ; 
+     
+  }
+
+  else {
+    lSpeed =100 ; 
+    rSpeed = 100 ; 
+    }
   
-  if(RSensor < 150 && LSensor < 150) {
-    goForwards(255); 
-  } else  if(LSensor < 300) {
-    turnRight(255, 10);
-  }
-  else if(RSensor < 300) {
-  turnLeft(255, 10); 
-  }
+
+  
 }
 
+/*char getDirection(char currentDirection){
+  char newDirection ; 
+
+  if(x == 'E') {
+    newDirection = currentDirection ; 
+  }
+  
+  return newPosition ;
+}
+*/
 int getDistance() {
   long duration, distance;
   
