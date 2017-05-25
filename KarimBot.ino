@@ -9,21 +9,30 @@ int RMotor = 6;
 int pot2 = A1;
 int pot1 = A0;
 
+//Actions
+boolean TurningRight = false ; 
+boolean TurningLeft = false ; 
+boolean GoingStraight = false ; 
 
 //INITIAL SPEED
 int lSpeed = 200; 
 int rSpeed = 200 ;
 
-char Direction[] = {'N', 'E', 'S', 'W'};
+int BlessUp = 0; 
 
+char Direction[] = {'N', 'E', 'S', 'W'};
+String Action[] = {"Turning Left", "Going Straight", "Turning Right"};
+
+int currentAction = 1 ; 
+
+//Counter 
+int counter = 0 ;
 
 //Current Ticks
-int XTicks ; 
-int YTicks ;
+int XTicks  = 0 ; 
+int YTicks  = 0;
 
 int currentDirection = 1;
-
-char facing = Direction[currentDirection];
 
 void setup() {
   pinMode(trigPin, OUTPUT);
@@ -35,25 +44,53 @@ void setup() {
   Serial.begin(9600); 
 }
 
-void loop() {   // the loop function runs over and over again forever
-//direction = getDirection(direction);   
+void loop() {  
 
-  if(getDistance() <= 3) {
-    turnLeft(255, 200) ; 
+currentAction = 1 ;   
+  float LSensor = analogRead(pot1);
+  float RSensor = analogRead(pot2);
+
+ 
+  
+//followBlackLine() ;
+
+//updateTicks() ; 
+
+
+//Serial.println(getDistance());
+if(getDistance() <= 15) {
+    //Turn Left Or Right 
+    //If Facing East (Turn Right)
+    if(currentDirection == 1) {
+      turnRight(255, 5000) ;
+    }
+  
+    //If Facing South (Turn Left)
+    else if(currentDirection == 2) {
+       turnLeft(255, 245) ;
+    }
+    //If Facing West (Turn Left)
+    else if(currentDirection == 3 ) {
+      turnLeft(255, 245) ; 
+    }
+
+    //If Facing North (Turn Right)
+    else if(currentDirection == 0) {
+       turnRight(255, 245) ;
+    }
+
+    counter = 0 ;
   }
-
-followBlackLine(); 
 }
 
-//Boolean OnWhite(int value) {
-  //On White
-//  if(value < 150) {
-    //return true ; 
-  //}
-  //else return false ; 
-//}
+
+  
+
+
+
 
 void followBlackLine() {
+  
   float LSensor = analogRead(pot1);
   float RSensor = analogRead(pot2);
 
@@ -64,34 +101,42 @@ void followBlackLine() {
    
   //goForwards(); 
    if(LSensor < 300 && RSensor > 300) {
-    rSpeed = 0 ; 
-    lSpeed = lSpeed + 50 ; 
+    rSpeed = 50 ; 
+    lSpeed = 255 ; 
   }
   else if(RSensor < 300 && LSensor > 300) {
-    lSpeed = 0;
-    rSpeed = rSpeed + 50 ; 
+    lSpeed = 50;
+    rSpeed = 255 ; 
      
   }
 
   else {
-    lSpeed =100 ; 
-    rSpeed = 100 ; 
+  
+    lSpeed =255 ; 
+    rSpeed = 255 ; 
     }
   
 
   
 }
 
-/*char getDirection(char currentDirection){
-  char newDirection ; 
 
-  if(x == 'E') {
-    newDirection = currentDirection ; 
-  }
+void updateTicks() {
   
-  return newPosition ;
+updateXTicks() ;
+updateYTicks() ; 
+
 }
-*/
+
+void updateXTicks() {
+ 
+}
+void updateYTicks () {
+
+}
+
+
+
 int getDistance() {
   long duration, distance;
   
@@ -100,8 +145,8 @@ int getDistance() {
   digitalWrite(trigPin, LOW);
   duration=pulseIn(echoPin, HIGH);
   distance =(duration/2)/29.1;
-  Serial.print(distance);
-  Serial.println("CM");
+  //Serial.print(distance);
+ // Serial.println("CM");
   delay(10);
 
   return distance; 
@@ -129,6 +174,23 @@ void goBackwards(int speed) {
 }
 
 void turnRight(int speed, int time) {
+
+  
+ currentAction + 1 ; 
+
+  if(counter == 0) {
+  if(currentDirection == 3) {
+    currentDirection-= 3 ; 
+
+  } else {
+     currentDirection++ ;
+
+  }
+  }
+  rSpeed = 255; 
+  lSpeed = 0 ; 
+  /*
+ 
    analogWrite(LMotor, speed);
    analogWrite(RMotor, speed);
    digitalWrite(LBack, LOW);
@@ -137,9 +199,22 @@ void turnRight(int speed, int time) {
    digitalWrite(LMotor, LOW);
    digitalWrite(RMotor, LOW);
    digitalWrite(RBack, LOW);
+   */
+        counter++ ;  
 }
 
 void turnLeft(int speed, int time) {
+  currentAction-- ; 
+  if(counter == 0){
+  if(currentDirection == 0) {
+    currentDirection = currentDirection + 3 ; 
+  } else {
+    currentDirection-- ; 
+  }
+}
+   rSpeed = 0 ; 
+   lSpeed = 255 ; 
+   /*
    analogWrite(LMotor, speed);
    analogWrite(RMotor, speed);
    analogWrite(LBack, speed);
@@ -148,6 +223,8 @@ void turnLeft(int speed, int time) {
    digitalWrite(RMotor, LOW);
    digitalWrite(LMotor, LOW);
    digitalWrite(LBack, LOW);
+   */
+   counter++ ; 
 }
 
 
