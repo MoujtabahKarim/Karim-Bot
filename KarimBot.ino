@@ -9,21 +9,38 @@ int RMotor = 6;
 int pot2 = A1;
 int pot1 = A0;
 
+///Checking bocks 
+int blockCounter = 0 ; 
+int lastDirection = 0 ;
+
+
+//Actions
+boolean TurningRight = false ; 
+boolean TurningLeft = false ; 
+boolean GoingStraight = false ; 
 
 //INITIAL SPEED
 int lSpeed = 200; 
 int rSpeed = 200 ;
 
-char Direction[] = {'N', 'E', 'S', 'W'};
+int BlessUp = 0; 
 
+char Direction[] = {'N', 'E', 'S', 'W'};
+String Action[] = {"Turning Left", "Going Straight", "Turning Right"};
+
+int currentAction = 1 ; 
+
+//Counter 
+int counter = 0 ;
+
+//fix this 
+int lastDistance = (pulseIn(echoPin, HIGH)/2)/29.1; 
 
 //Current Ticks
-int XTicks ; 
-int YTicks ;
+int XTicks  = 0 ; 
+int YTicks  = 0;
 
 int currentDirection = 1;
-
-char facing = Direction[currentDirection];
 
 void setup() {
   pinMode(trigPin, OUTPUT);
@@ -33,27 +50,72 @@ void setup() {
   pinMode(RMotor, OUTPUT);
   pinMode(LMotor, OUTPUT);
   Serial.begin(9600); 
+
+ 
+
+  
 }
 
-void loop() {   // the loop function runs over and over again forever
-//direction = getDirection(direction);   
+void loop() {  
+currentAction = 1 ;   
+  float LSensor = analogRead(pot1);
+  float RSensor = analogRead(pot2);
 
-  if(getDistance() <= 3) {
-    turnLeft(255, 200) ; 
-  }
 
-followBlackLine(); 
+
+
+ //Keep turning untill the distance is greater than 10 
+  
+followBlackLine() ;
+
+//updateTicks() ; 
+
+
+//Serial.println(getDistance());
+
+while(getDistance() <= 3) {
+  checkCollision() ; 
+}
+  //blockCounter = 0 ; 
+  counter = 0 ;
 }
 
-//Boolean OnWhite(int value) {
-  //On White
-//  if(value < 150) {
-    //return true ; 
-  //}
-  //else return false ; 
-//}
+
+  
+void checkCollision() {
+
+ // turnRight(255, 300);
+
+
+  //use of Reursion 
+  lastDistance = getDistance() ; 
+    blockCounter++ ; 
+    //Turn Left Or Right 
+    //If Facing East (Turn Right)
+    if(currentDirection == 1) {
+      turnRight(255, 300) ;
+    }
+  
+    //If Facing South (Turn Left)
+    else if(currentDirection == 2) {
+       turnLeft(255, 300) ;
+    }
+    //If Facing West (Turn Left)
+    else if(currentDirection == 3 ) {
+      turnLeft(255, 300) ; 
+    }
+
+    //If Facing North (Turn Right)
+    else if(currentDirection == 0) {
+       turnRight(255, 300) ;
+    }
+
+}
+
+
 
 void followBlackLine() {
+  
   float LSensor = analogRead(pot1);
   float RSensor = analogRead(pot2);
 
@@ -63,35 +125,50 @@ void followBlackLine() {
    analogWrite(RBack, 0);
    
   //goForwards(); 
-   if(LSensor < 300 && RSensor > 300) {
-    rSpeed = 0 ; 
-    lSpeed = lSpeed + 50 ; 
+  if(!onBlack(LSensor) && onBlack(RSensor)) {
+    rSpeed = 0; 
+    lSpeed = 255; 
+     
   }
-  else if(RSensor < 300 && LSensor > 300) {
-    lSpeed = 0;
-    rSpeed = rSpeed + 50 ; 
+  else if(!onBlack(RSensor) && onBlack(LSensor)) {
+   lSpeed = 0 ; 
+   rSpeed = 255 ; 
      
   }
 
-  else {
-    lSpeed =100 ; 
-    rSpeed = 100 ; 
-    }
+ else {
+  lSpeed = 255 ; 
+  rSpeed = 255 ; 
+ }
   
 
   
 }
 
-/*char getDirection(char currentDirection){
-  char newDirection ; 
-
-  if(x == 'E') {
-    newDirection = currentDirection ; 
+boolean onBlack(int x ) {
+  if(x < 150) {
+    return false ; 
   }
-  
-  return newPosition ;
+  else return true; 
 }
-*/
+
+
+void updateTicks() {
+  
+updateXTicks() ;
+updateYTicks() ; 
+
+}
+
+void updateXTicks() {
+ 
+}
+void updateYTicks () {
+
+}
+
+
+
 int getDistance() {
   long duration, distance;
   
@@ -101,7 +178,7 @@ int getDistance() {
   duration=pulseIn(echoPin, HIGH);
   distance =(duration/2)/29.1;
   Serial.print(distance);
-  Serial.println("CM");
+ Serial.println("CM");
   delay(10);
 
   return distance; 
@@ -129,25 +206,62 @@ void goBackwards(int speed) {
 }
 
 void turnRight(int speed, int time) {
-   analogWrite(LMotor, speed);
-   analogWrite(RMotor, speed);
+
+  
+ currentAction + 1 ; 
+
+  if(counter == 0) {
+  if(currentDirection == 3) {
+    currentDirection-= 3 ; 
+
+  } else {
+     currentDirection++ ;
+  
+
+  }
+  }
+
+//Activate motors
    digitalWrite(LBack, LOW);
+   digitalWrite(RMotor, HIGH);
+   digitalWrite(RBack, HIGH);
+
+
+   //Mess with speed
+   analogWrite(LMotor, speed);
    analogWrite(RBack, speed);
    delay(time); 
    digitalWrite(LMotor, LOW);
    digitalWrite(RMotor, LOW);
    digitalWrite(RBack, LOW);
+   
+        counter++ ;  
 }
 
 void turnLeft(int speed, int time) {
-   analogWrite(LMotor, speed);
+  currentAction-- ; 
+  if(counter == 0){
+  if(currentDirection == 0) {
+    currentDirection = currentDirection + 3 ; 
+  } else {
+    currentDirection-- ; 
+  }
+}
+  //Activate motors
+   digitalWrite(RBack, LOW);
+   digitalWrite(LMotor, HIGH);
+   digitalWrite(LBack, HIGH);
+
+
+   //Mess with speed
    analogWrite(RMotor, speed);
    analogWrite(LBack, speed);
-   digitalWrite(RBack, LOW);
-   delay(time);
-   digitalWrite(RMotor, LOW);
+   delay(time); 
    digitalWrite(LMotor, LOW);
-   digitalWrite(LBack, LOW);
+   digitalWrite(RMotor, LOW);
+   digitalWrite(RBack, LOW);
+   
+   counter++ ; 
 }
 
 
